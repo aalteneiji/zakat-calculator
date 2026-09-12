@@ -1,0 +1,362 @@
+<!doctype html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#70AD47">
+<title>حاسبة الزكاة</title>
+<style>
+:root{--gold:#FFC000;--gold-bg:#fff6da;--green:#70AD47;--green-bg:#eaf4e3;--head:#44546A;--head-bg:#e7e6e6;--text:#1f1f1f;--muted:#5b6470;--line:#d9dee3;--bg:#f4f6f8}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Calibri","Geeza Pro","Damascus","Segoe UI",system-ui,-apple-system,Tahoma,sans-serif;-webkit-text-size-adjust:100%}
+body{padding-bottom:28px}
+.wrap{max-width:900px;margin:20px auto;padding:0 14px}
+.card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(23,50,77,.09);padding:18px;margin-bottom:16px;overflow:hidden}
+.hero{background:linear-gradient(135deg,#2f3e50,#44546A);color:#fff}
+h1{margin:0 0 6px;font-size:26px}
+h2{font-size:17px;margin:0 0 12px;color:var(--head)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--head-bg);color:var(--head);padding:9px 8px;text-align:center;font-size:13px;font-weight:700;border:1px solid var(--line)}
+td{padding:8px;border:1px solid var(--line);text-align:center;vertical-align:middle;font-size:14px}
+td.label{text-align:right;font-weight:700;background:#fbfbfb}
+.gold-cell{background:var(--gold-bg)}
+.green-cell{background:var(--green-bg);font-weight:700}
+input.cell-input{width:100%;padding:8px;border:1px solid #e3c96a;border-radius:6px;font-size:15px;background:var(--gold-bg);color:var(--text);text-align:center;-webkit-appearance:none;appearance:none}
+input.cell-input:focus{outline:2px solid rgba(255,192,0,.45);outline-offset:1px}
+.result-value{font-weight:700;direction:ltr;display:inline-block;min-width:100%}
+#D19{direction:rtl;text-align:right}
+.gold-price-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.gold-price-row input{max-width:160px}
+button{border:0;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation;background:var(--green);color:#fff}
+button:active{transform:translateY(1px)}
+.status{font-size:12px;color:var(--muted);min-height:18px;margin-top:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.swatch{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+.swatch.gold{background:var(--gold-bg);border-color:#e3c96a}
+.swatch.green{background:var(--green-bg);border-color:#9fc98a}
+.notes{white-space:pre-line;font-size:13px;line-height:1.9;color:#3a4550;background:#f7f9fa;border:1px solid #e3e8ec;border-radius:10px;padding:12px}
+.hint{background:#fff8e6;border:1px solid #f0dca0;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b5211;margin-top:10px}
+@media(max-width:560px){th,td{font-size:12px;padding:6px 4px}h1{font-size:22px}input.cell-input{font-size:14px;padding:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card hero">
+  <h1>حاسبة الزكاة</h1>
+  <div>أدخل القيم في الخلايا الذهبية؛ النتائج في الخلايا الخضراء تتحدث تلقائياً.</div>
+</div>
+
+<div class="card">
+  <h2>قيمة جرام الذهب 24 قراط</h2>
+  <div class="gold-price-row">
+    <input id="goldPrice" class="cell-input" type="text" inputmode="decimal" autocomplete="off" value="533.75" aria-label="قيمة جرام الذهب 24 قراط" style="background:var(--gold-bg)">
+    <span>درهم/جرام</span>
+    <button id="refreshGold" type="button">تحديث السعر تلقائياً</button>
+  </div>
+  <div id="goldStatus" class="status" aria-live="polite">جارٍ جلب آخر سعر متاح عند فتح الصفحة…</div>
+</div>
+
+<div class="card">
+  <h2>مقارنة الأموال الزكوية بين الحولين</h2>
+  <table>
+    <thead>
+      <tr><th>الأموال الزكوية</th><th>الحول الماضي</th><th>الحول الحالي</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">النقد المقبوض</td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="C4" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="D4" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+      </tr>
+      <tr>
+        <td class="label">مقدار الزكاة المدفوعة في وقتها</td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="C5" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="label">النقد غير المقبوض</td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="C6" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="D6" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+      </tr>
+      <tr>
+        <td class="label">مقدار الزكاة المؤجلة المدفوعة خلال الحول</td>
+        <td class="gold-cell"><input class="cell-input zi" data-key="C7" type="text" inputmode="decimal" autocomplete="off" value="0"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="label">المجموع</td>
+        <td class="green-cell"><span id="C8" class="result-value">0.00</span></td>
+        <td class="green-cell"><span id="D8" class="result-value">0.00</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>تقييم وجوب الزكاة</h2>
+  <table>
+    <tbody>
+      <tr><td class="label">قيمة جرام الذهب 24 قراط</td><td class="gold-cell"><span id="C11echo" class="result-value">533.75</span></td></tr>
+      <tr><td class="label">مقدار نصاب الذهب (85Gram 24K)</td><td class="green-cell"><span id="C12" class="result-value">45,368.75</span></td></tr>
+      <tr><td class="label">مجموع الأموال التي حال عليها الحول</td><td class="green-cell"><span id="C13" class="result-value">0.00</span></td></tr>
+      <tr><td class="label">هل علي زكاة هذا الحول؟</td><td class="green-cell"><span id="C14" class="result-value">لا</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>حساب الزكاة</h2>
+  <table>
+    <thead>
+      <tr><th>الأموال الزكوية واجبة الزكاة للحول الحالي</th><th>إجمال الأموال</th><th>مقدار الزكاة</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">النقد المقبوض</td>
+        <td class="green-cell"><span id="C18" class="result-value"></span></td>
+        <td class="green-cell"><span id="D18" class="result-value"></span></td>
+      </tr>
+      <tr>
+        <td class="label">النقد غير المقبوض</td>
+        <td class="green-cell"><span id="C19" class="result-value"></span></td>
+        <td class="green-cell"><span id="D19" class="result-value"></span></td>
+      </tr>
+      <tr>
+        <td class="label">المجموع</td>
+        <td class="green-cell"><span id="C20" class="result-value">0.00</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="B21" class="hint" style="display:none"></div>
+</div>
+
+<div class="card">
+  <h2>ملاحظات</h2>
+  <div class="notes">ملاحظات:
+• ألوان الخلايا: الخلايا الذهبية للمدخلات، والخلايا الخضراء للنتائج.
+• النقد المقبوض: هو أرصدة البنك والمحفظة و عائدات الإيجارات و أرباح الأسهم والودائع والتجارة، وذلك لحساب الزكاة في وقتها.
+• النقد غير المقبوض: هو أصل الدين و رأس مال كل من الوديعة وعروض التجارة والاستثمارات، وذلك لحساب الزكاة المؤجلة خلال الحول.</div>
+  <div class="legend">
+    <span><span class="swatch gold"></span> خلايا الإدخال</span>
+    <span><span class="swatch green"></span> خلايا النتائج</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var DEFAULT_GOLD = 533.75;
+
+  function el(id) { return document.getElementById(id); }
+
+  function digits(value) {
+    var s = String(value == null ? "" : value);
+    var map = {
+      "٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9",
+      "۰":"0","۱":"1","۲":"2","۳":"3","۴":"4","۵":"5","۶":"6","۷":"7","۸":"8","۹":"9"
+    };
+    return s.replace(/[٠-٩۰-۹]/g, function (c) { return map[c] || c; });
+  }
+
+  function num(value) {
+    var s = digits(value)
+      .replace(/\u00A0/g, "")
+      .replace(/\s/g, "")
+      .replace(/[٬,]/g, "")
+      .replace(/٫/g, ".")
+      .trim();
+    if (!s) return 0;
+    s = s.replace(/[^0-9.+-]/g, "");
+    var n = Number(s);
+    return isFinite(n) ? n : 0;
+  }
+
+  function money(n) {
+    n = Number(n);
+    if (!isFinite(n)) n = 0;
+    var fixed = n.toFixed(2).split(".");
+    fixed[0] = fixed[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return fixed[0] + "." + fixed[1];
+  }
+
+  function readInput(key) {
+    var x = document.querySelector('[data-key="' + key + '"]');
+    return x ? num(x.value) : 0;
+  }
+
+  function setText(id, value) {
+    var x = el(id);
+    if (x) x.textContent = value;
+  }
+
+  // Reproduces the exact cell formulas from the source workbook.
+  function calc() {
+    var goldEl = el("goldPrice");
+    var gold = goldEl ? num(goldEl.value) : DEFAULT_GOLD;
+    if (gold <= 0) gold = DEFAULT_GOLD;
+
+    var C4 = readInput("C4"), D4 = readInput("D4");
+    var C5 = readInput("C5");
+    var C6 = readInput("C6"), D6 = readInput("D6");
+    var C7 = readInput("C7");
+
+    // C8 = C4-C5+C6-C7
+    var C8 = C4 - C5 + C6 - C7;
+    // D8 = D4+D6
+    var D8 = D4 + D6;
+
+    // C11 = gold price input
+    var C11 = gold;
+    // C12 = C11*85
+    var C12 = C11 * 85;
+    // C13 = MIN(C8,D8)
+    var C13 = Math.min(C8, D8);
+    // C14 = IF(C13>=C12,"نعم","لا")
+    var C14 = C13 >= C12 ? "نعم" : "لا";
+
+    // C20 = IF(C14="نعم", C13, 0)
+    var C20 = C14 === "نعم" ? C13 : 0;
+
+    // C18 = IF(C14="نعم", IF(AND(D8>C8, D6<=(C6-C7)), MIN(C4,D4)+(C6-C7-D6), IF(D8<=C8, D4, MIN(C4,D4))), "")
+    var C18, C18isBlank = false;
+    if (C14 === "نعم") {
+      if (D8 > C8 && D6 <= (C6 - C7)) {
+        C18 = Math.min(C4, D4) + (C6 - C7 - D6);
+      } else if (D8 <= C8) {
+        C18 = D4;
+      } else {
+        C18 = Math.min(C4, D4);
+      }
+    } else {
+      C18 = 0;
+      C18isBlank = true;
+    }
+
+    // D18 = C18*2.5%
+    var D18 = C18isBlank ? null : C18 * 0.025;
+
+    // C19 = C20-C18
+    var C19 = C20 - (C18isBlank ? 0 : C18);
+
+    // D19 = IF(C19<>0, "2.5% من أي من هذا النقد إذا قبض خلال الحول", "")
+    var D19text = C19 !== 0 ? "2.5% من أي من هذا النقد إذا قبض خلال الحول" : "";
+
+    // B21 = IF(AND(C18<C12, C18>0), "...", " ")
+    var b21show = (!C18isBlank && C18 < C12 && C18 > 0);
+    var b21text = "بما أن النقد المقبوض الحالي لم يبلغ النصاب يمكن إخراج الزكاة عنه في وقتها إن أمكن، أو تأجيلها حتى يبلغ مجموع النقد المقبوص النصاب فقط لأول مرة، بضمه إلى النقد الذي كان غير مقبوض وواجب الزكاة عنه ثم تخرج الزكاة عن جميع  المقبوض.";
+
+    // Render
+    setText("C8", money(C8));
+    setText("D8", money(D8));
+    setText("C11echo", money(C11));
+    setText("C12", money(C12));
+    setText("C13", money(C13));
+    setText("C14", C14);
+    setText("C18", C18isBlank ? "" : money(C18));
+    setText("D18", D18 === null ? "" : money(D18));
+    setText("C19", money(C19));
+    setText("D19", D19text);
+    setText("C20", money(C20));
+
+    var b21 = el("B21");
+    if (b21show) {
+      b21.style.display = "";
+      b21.textContent = b21text;
+    } else {
+      b21.style.display = "none";
+      b21.textContent = "";
+    }
+  }
+
+  function bindInput(input) {
+    if (!input) return;
+    ["input", "change", "keyup", "blur"].forEach(function (eventName) {
+      input.addEventListener(eventName, calc, false);
+    });
+    input.addEventListener("paste", function () { setTimeout(calc, 0); }, false);
+  }
+
+  // Fetch the current 24K gold price (AED/gram) automatically on load.
+  // xaus.com is a free, keyless, CORS-open API - no auth required.
+  function fetchGoldPrice() {
+    var statusEl = el("goldStatus");
+    var url = "https://xaus.com/api/v1/spot?currency=AED&unit=gram&compact=1";
+
+    // Opening the file directly (double-click / file://) blocks almost all
+    // fetch requests in every major browser, regardless of internet access.
+    // Tell the user this plainly instead of a generic "no connection" message.
+    if (window.location.protocol === "file:") {
+      if (statusEl) {
+        statusEl.textContent =
+          "التحديث التلقائي لا يعمل عند فتح الملف مباشرة من الجهاز (file://) بسبب قيود أمان المتصفح، بغض النظر عن الإنترنت. لتفعيله: ضع الملف على استضافة ويب (حتى بسيطة)، أو افتحه عبر خادم محلي. يمكنك تعديل السعر يدوياً في هذه الأثناء.";
+      }
+      calc();
+      return;
+    }
+
+    if (statusEl) statusEl.textContent = "جارٍ تحديث سعر الذهب...";
+
+    fetch(url, { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var aedPerGram24k = data && data.xau && Number(data.xau.price);
+        if (!aedPerGram24k || !isFinite(aedPerGram24k)) throw new Error("no price field");
+
+        var goldInput = el("goldPrice");
+        if (goldInput) goldInput.value = aedPerGram24k.toFixed(2);
+        calc();
+
+        if (statusEl) {
+          var now = new Date();
+          var t = now.toLocaleString("ar-AE", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
+          var stale = data.data_state && data.data_state.status === "stale";
+          statusEl.textContent =
+            "تم التحديث تلقائياً" + (stale ? " (آخر سعر متاح، قد لا يكون لحظياً)" : "") + " — " + t + ". يمكن تعديل القيمة يدوياً عند الحاجة.";
+        }
+      })
+      .catch(function (err) {
+        if (statusEl) {
+          statusEl.textContent =
+            "تعذر جلب السعر تلقائياً (" + (err && err.message ? err.message : "خطأ غير معروف") + "). تم الإبقاء على آخر قيمة محفوظة، ويمكن تعديلها يدوياً.";
+        }
+        calc();
+      });
+  }
+
+  function init() {
+    var inputs = document.querySelectorAll("input");
+    for (var i = 0; i < inputs.length; i++) bindInput(inputs[i]);
+
+    if (el("refreshGold")) {
+      el("refreshGold").addEventListener("click", fetchGoldPrice, false);
+    }
+
+    calc();
+    fetchGoldPrice();
+
+    setTimeout(calc, 100);
+    setTimeout(calc, 500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, false);
+  } else {
+    init();
+  }
+
+  window.addEventListener("pageshow", calc, false);
+})();
+</script>
+
+</body>
+</html>
